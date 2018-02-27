@@ -20,12 +20,12 @@ RUN apk add --update --no-cache curl git bash jq libintl && \
     mv terraform /usr/bin/terraform && \
     export GOPATH=/go && \
     export PATH=${GOPATH}/bin:${PATH} && \
-    mkdir -p ${GOPATH}/src ${GOPATH}/bin /mods/linux_amd64 && \
+    mkdir -p ${GOPATH}/src ${GOPATH}/bin ${TF_PLUGIN_CACHE_DIR}/linux_amd64 && \
     chmod -R 777 "${GOPATH}" && \
     go get -u github.com/golang/dep/cmd/dep github.com/vmware/terraform-provider-vra7 && \
     cd /go/src/github.com/vmware/terraform-provider-vra7 && \
     dep ensure && \
-    go build -o /mods/linux_amd64/terraform-provider-vra7 && \
+    go build -o ${TF_PLUGIN_CACHE_DIR}/linux_amd64/terraform-provider-vra7 && \
     cd /tmp && \
     terraform init && \
     apk del build-dependencies && \
