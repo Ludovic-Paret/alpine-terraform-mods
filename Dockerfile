@@ -1,12 +1,11 @@
 FROM alpine:3.7
 
-ARG VERSION_TERRAFORM
+ENV VERSION_TERRAFORM "0.11.3"
+ENV TF_PLUGIN_CACHE_DIR "/mods"
 
 COPY ./main.tf /tmp/main.tf
 COPY ./terraformrc /root/.terraformrc
 
-ENV TF_PLUGIN_CACHE_DIR "/mods"
- 
 RUN apk add --update --no-cache curl git bash jq libintl && \
     apk add --virtual build-dependencies gnupg gettext go gcc musl-dev openssl && \
     cp /usr/bin/envsubst /usr/local/bin/envsubst && \
