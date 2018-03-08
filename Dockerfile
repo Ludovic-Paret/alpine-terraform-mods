@@ -1,27 +1,31 @@
 FROM alpine:3.7
 
-ENV VERSION_TERRAFORM "0.11.3"
+ENV TERRAFORM_VERSION "0.11.3"
 ENV TF_PLUGIN_CACHE_DIR "/mods"
+
+ARG RUNTIME_DEPS "libintl"
+ARG BUILD_DEPS "gnupg gettext go gcc musl-dev openssl"
 
 COPY ./main.tf /tmp/main.tf
 COPY ./terraformrc /root/.terraformrc
 
-RUN apk add --update --no-cache curl git bash jq libintl && \
-    apk add --virtual build-dependencies gnupg gettext go gcc musl-dev openssl && \
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache ${RUNTIME_DEPS} && \
+    apk add --no-cache --virtual build-dependencies ${BUILD_DEPS} && \
     cp /usr/bin/envsubst /usr/local/bin/envsubst && \
     curl -s https://keybase.io/hashicorp/key.asc | gpg --import && \
-    curl -Os https://releases.hashicorp.com/terraform/${VERSION_TERRAFORM}/terraform_${VERSION_TERRAFORM}_linux_amd64.zip && \
-    curl -Os https://releases.hashicorp.com/terraform/${VERSION_TERRAFORM}/terraform_${VERSION_TERRAFORM}_SHA256SUMS && \
-    curl -Os https://releases.hashicorp.com/terraform/${VERSION_TERRAFORM}/terraform_${VERSION_TERRAFORM}_SHA256SUMS.sig && \
-    gpg --verify terraform_${VERSION_TERRAFORM}_SHA256SUMS.sig terraform_${VERSION_TERRAFORM}_SHA256SUMS && \
-    sha256sum terraform_${VERSION_TERRAFORM}_SHA256SUMS && \
-    unzip terraform_${VERSION_TERRAFORM}_linux_amd64.zip && \
+    curl -Os https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    curl -Os https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS && \
+    curl -Os https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS.sig && \
+    gpg --verify terraform_${TERRAFORM_VERSION}_SHA256SUMS.sig terraform_${TERRAFORM_VERSION}_SHA256SUMS && \
+    sha256sum terraform_${TERRAFORM_VERSION}_SHA256SUMS && \
+    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     chmod +x terraform && \
-    mv terraform /usr/bin/terraform && \
+    mv terraform /usr/local/bin/terraform && \
     export GOPATH=/go && \
     export PATH=${GOPATH}/bin:${PATH} && \
     mkdir -p ${GOPATH}/src ${GOPATH}/bin ${TF_PLUGIN_CACHE_DIR}/linux_amd64 && \
-    chmod -R 777 "${GOPATH}" && \
     go get -u github.com/golang/dep/cmd/dep github.com/vmware/terraform-provider-vra7 && \
     cd /go/src/github.com/vmware/terraform-provider-vra7 && \
     dep ensure && \
@@ -29,6 +33,6 @@ RUN apk add --update --no-cache curl git bash jq libintl && \
     cd /tmp && \
     terraform init && \
     apk del build-dependencies && \
-    rm -rf /terraform_${VERSION_TERRAFORM}_* /var/cache/apk/* /go /tmp/.terraform /tmp/main.tf
+    rm -rf /terraform_${TERRAFORM_VERSION}_* /var/cache/apk/* /tmp/* /go
 
 ENTRYPOINT []
