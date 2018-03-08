@@ -4,7 +4,7 @@ ENV TERRAFORM_VERSION "0.11.3"
 ENV TF_PLUGIN_CACHE_DIR "/mods"
 
 ARG RUNTIME_DEPS="libintl"
-ARG BUILD_DEPS="gnupg gettext go gcc musl-dev openssl"
+ARG BUILD_DEPS="gnupg gettext go gcc musl-dev openssl curl"
 
 COPY ./main.tf /tmp/main.tf
 COPY ./terraformrc /root/.terraformrc
