@@ -34,6 +34,8 @@ RUN apk update && \
     cd /tmp && \
     terraform init && \
     apk del build-dependencies && \
-    rm -rf /terraform_${TERRAFORM_VERSION}_* /var/cache/apk/* /tmp/* ${GOPATH}
+    rm -rf /terraform_${TERRAFORM_VERSION}_* /var/cache/apk/* /tmp/* ${GOPATH} && \
+    terraform -v && \
+    terraform providers
 
 ENTRYPOINT []
